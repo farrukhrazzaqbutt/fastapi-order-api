@@ -76,7 +76,7 @@ def create_payment_intent(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         log_response(correlation_id, 500, time.time() - start_time)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -126,7 +126,7 @@ def payment_webhook(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         log_response(correlation_id, 500, time.time() - start_time)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

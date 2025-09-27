@@ -35,7 +35,10 @@ RATE_LIMITED_REQUESTS = Counter(
 # Create FastAPI app
 app = FastAPI(
     title="Order API",
-    description="A production-ready FastAPI Order API with JWT auth, idempotency, rate limiting, and payments",
+    description=(
+        "A production-ready FastAPI Order API with JWT auth, "
+        "idempotency, rate limiting, and payments"
+    ),
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",

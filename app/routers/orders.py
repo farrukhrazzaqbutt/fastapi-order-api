@@ -1,6 +1,5 @@
 import logging
 import time
-from typing import List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
@@ -13,8 +12,8 @@ from app.deps import (
     get_rate_limiter,
     store_idempotency,
 )
-from app.models import Order, User
-from app.schemas import OrderCreate, OrderListResponse, OrderResponse, OrderStatus
+from app.models import User
+from app.schemas import OrderCreate, OrderListResponse, OrderResponse
 from app.services.order_service import OrderService
 from app.utils import (
     calculate_total_price,
@@ -53,7 +52,7 @@ def create_order(
 
     try:
         # Validate order data
-        total_price = calculate_total_price(order_data.price, order_data.quantity)
+        calculate_total_price(order_data.price, order_data.quantity)
 
         # Create order using service
         order_service = OrderService(db)
@@ -87,7 +86,7 @@ def create_order(
     except ValueError as e:
         log_response(correlation_id, 400, time.time() - start_time)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception as e:
+    except Exception:
         log_response(correlation_id, 500, time.time() - start_time)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -123,7 +122,7 @@ def get_orders(
             orders=order_responses, total=total, page=page, size=size
         )
 
-    except Exception as e:
+    except Exception:
         log_response(correlation_id, 500, time.time() - start_time)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -160,7 +159,7 @@ def get_order(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         log_response(correlation_id, 500, time.time() - start_time)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

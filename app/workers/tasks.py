@@ -1,10 +1,7 @@
 import logging
 
-from celery import current_task
-
 from app.db import SessionLocal
 from app.models import Order
-from app.services.order_service import OrderService
 from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
@@ -25,7 +22,8 @@ def send_order_confirmation_email(self, order_id: int, username: str, item: str)
         # 3. Log the email status
 
         logger.info(
-            f"Order confirmation email sent for order {order_id} to user {username} for item {item}"
+            f"Order confirmation email sent for order {order_id} "
+            f"to user {username} for item {item}"
         )
 
         return {

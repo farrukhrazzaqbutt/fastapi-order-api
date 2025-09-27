@@ -5,6 +5,9 @@ from typing import Optional
 class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql://app:app@localhost:5432/app"
+    postgres_user: Optional[str] = None
+    postgres_password: Optional[str] = None
+    postgres_db: Optional[str] = None
     
     # Redis
     redis_url: str = "redis://localhost:6379/0"
@@ -27,6 +30,7 @@ class Settings(BaseSettings):
     
     class Config:
         env_file = ".env"
+        extra = "ignore"  # Ignore extra environment variables
 
 
 settings = Settings()

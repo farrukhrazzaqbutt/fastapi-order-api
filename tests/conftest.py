@@ -1,4 +1,5 @@
 import pytest
+import os
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -7,17 +8,16 @@ from app.db import get_db, Base
 from app.config import settings
 import redis
 
-# Test database URL
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+# Test database URL - use PostgreSQL for CI compatibility
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://app:app@localhost:5432/app")
 
 # Create test engine
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create test Redis client
-test_redis = redis.Redis(host='localhost', port=6379, db=1, decode_responses=True)
+redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/1")
+test_redis = redis.from_url(redis_url, decode_responses=True)
 
 
 def override_get_db():

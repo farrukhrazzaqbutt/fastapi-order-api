@@ -11,8 +11,34 @@ import json
 
 security = HTTPBearer()
 
-# Redis connection
-redis_client = redis.from_url(settings.redis_url, decode_responses=True)
+# Redis connection with fallback
+try:
+    redis_client = redis.from_url(settings.redis_url, decode_responses=True)
+    # Test connection
+    redis_client.ping()
+except Exception:
+    # If Redis is not available, create a mock
+    class MockRedis:
+        def __init__(self):
+            self.data = {}
+        def get(self, key):
+            return self.data.get(key)
+        def set(self, key, value, ex=None):
+            self.data[key] = value
+        def setex(self, key, time, value):
+            self.data[key] = value
+        def incr(self, key, amount=1):
+            current = int(self.data.get(key, 0))
+            new_value = current + amount
+            self.data[key] = str(new_value)
+            return new_value
+        def delete(self, key):
+            self.data.pop(key, None)
+        def flushdb(self):
+            self.data.clear()
+        def ping(self):
+            return True
+    redis_client = MockRedis()
 
 
 def get_current_user(

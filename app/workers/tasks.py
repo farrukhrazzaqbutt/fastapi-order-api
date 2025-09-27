@@ -1,9 +1,11 @@
+import logging
+
 from celery import current_task
-from app.workers.celery_app import celery_app
+
 from app.db import SessionLocal
 from app.models import Order
 from app.services.order_service import OrderService
-import logging
+from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +96,7 @@ def cleanup_expired_orders():
         db = SessionLocal()
         try:
             from datetime import datetime, timedelta
+
             from sqlalchemy import and_
 
             # Find orders older than 24 hours that are still pending

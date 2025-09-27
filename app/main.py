@@ -1,13 +1,15 @@
+import logging
+import time
+
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
-import time
-import logging
-from app.routers import auth, orders, payments, health
-from app.utils import generate_correlation_id, log_request, log_response
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
 from app.config import settings
+from app.routers import auth, health, orders, payments
+from app.utils import generate_correlation_id, log_request, log_response
 
 # Configure logging
 logging.basicConfig(level=getattr(logging, settings.log_level))

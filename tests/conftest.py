@@ -1,12 +1,14 @@
-import pytest
 import os
+
+import pytest
+import redis
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.main import app
-from app.db import get_db, Base
+
 from app.config import settings
-import redis
+from app.db import Base, get_db
+from app.main import app
 
 # Test database URL - use SQLite for local testing, PostgreSQL for CI
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
@@ -102,8 +104,8 @@ def client(db_session):
 @pytest.fixture
 def test_user(db_session):
     """Create a test user"""
-    from app.models import User
     from app.auth import get_password_hash
+    from app.models import User
 
     user = User(username="testuser", hashed_password=get_password_hash("testpass"))
     db_session.add(user)

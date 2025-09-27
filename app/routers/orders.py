@@ -1,26 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
-from sqlalchemy.orm import Session
-from typing import List
 import logging
+import time
+from typing import List
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from sqlalchemy.orm import Session
+
 from app.db import get_db
-from app.models import User, Order
-from app.schemas import OrderCreate, OrderResponse, OrderListResponse, OrderStatus
 from app.deps import (
-    get_current_user,
-    get_rate_limiter,
-    get_idempotency_key,
     check_idempotency,
+    get_current_user,
+    get_idempotency_key,
+    get_rate_limiter,
     store_idempotency,
 )
+from app.models import Order, User
+from app.schemas import OrderCreate, OrderListResponse, OrderResponse, OrderStatus
+from app.services.order_service import OrderService
 from app.utils import (
+    calculate_total_price,
+    generate_correlation_id,
     log_request,
     log_response,
-    generate_correlation_id,
-    calculate_total_price,
 )
-from app.services.order_service import OrderService
 from app.workers.tasks import send_order_confirmation_email
-import time
 
 logger = logging.getLogger(__name__)
 

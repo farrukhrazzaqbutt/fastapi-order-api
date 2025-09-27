@@ -1,6 +1,8 @@
-from sqlalchemy.orm import Session
-from app.models import PaymentAttempt
 from typing import Optional
+
+from sqlalchemy.orm import Session
+
+from app.models import PaymentAttempt
 
 
 class PaymentService:

@@ -1,7 +1,8 @@
+import time
+import uuid
+
 import pytest
 from fastapi import status
-import uuid
-import time
 
 
 class TestRateLimiting:

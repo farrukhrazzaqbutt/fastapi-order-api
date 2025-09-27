@@ -1,10 +1,12 @@
+import hashlib
 from datetime import datetime, timedelta
 from typing import Optional
+
+from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import HTTPException, status
+
 from app.config import settings
-import hashlib
 
 # Use pbkdf2 for password hashing (more reliable than bcrypt)
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")

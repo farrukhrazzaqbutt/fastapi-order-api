@@ -1,7 +1,9 @@
-from sqlalchemy.orm import Session
+from typing import List, Optional, Tuple
+
 from sqlalchemy import func
+from sqlalchemy.orm import Session
+
 from app.models import Order
-from typing import List, Tuple, Optional
 
 
 class OrderService:

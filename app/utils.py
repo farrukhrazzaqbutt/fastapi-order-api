@@ -1,7 +1,9 @@
-import uuid
 import logging
+import uuid
 from typing import Optional
+
 from fastapi import Request
+
 from app.deps import get_client_ip
 
 # Configure logging

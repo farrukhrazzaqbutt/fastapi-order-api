@@ -1,13 +1,15 @@
-from fastapi import Depends, HTTPException, status, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
+import json
 from typing import Optional
-from app.db import get_db
-from app.models import User
+
+import redis
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.orm import Session
+
 from app.auth import verify_token
 from app.config import settings
-import redis
-import json
+from app.db import get_db
+from app.models import User
 
 security = HTTPBearer()
 

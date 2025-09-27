@@ -10,12 +10,8 @@ class TestOrders:
         idem_key = str(uuid.uuid4())
         response = client.post(
             "/orders/",
-            json={
-                "item": "Test Product",
-                "quantity": 2,
-                "price": 29.99
-            },
-            headers={"Idempotency-Key": idem_key}
+            json={"item": "Test Product", "quantity": 2, "price": 29.99},
+            headers={"Idempotency-Key": idem_key},
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -23,54 +19,36 @@ class TestOrders:
         """Test order creation without idempotency key"""
         response = client.post(
             "/orders/",
-            json={
-                "item": "Test Product",
-                "quantity": 2,
-                "price": 29.99
-            },
-            headers=auth_headers
+            json={"item": "Test Product", "quantity": 2, "price": 29.99},
+            headers=auth_headers,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_create_order_idempotency(self, client, auth_headers):
         """Test order creation idempotency"""
         idem_key = str(uuid.uuid4())
-        
+
         # First request
         response1 = client.post(
             "/orders/",
-            json={
-                "item": "Test Product",
-                "quantity": 2,
-                "price": 29.99
-            },
-            headers={
-                **auth_headers,
-                "Idempotency-Key": idem_key
-            }
+            json={"item": "Test Product", "quantity": 2, "price": 29.99},
+            headers={**auth_headers, "Idempotency-Key": idem_key},
         )
         # Skip this test if order creation fails
         if response1.status_code != status.HTTP_201_CREATED:
             pytest.skip("Order creation failed, skipping idempotency test")
-        
+
         order1 = response1.json()
-        
+
         # Second request with same idempotency key
         response2 = client.post(
             "/orders/",
-            json={
-                "item": "Different Product",
-                "quantity": 5,
-                "price": 99.99
-            },
-            headers={
-                **auth_headers,
-                "Idempotency-Key": idem_key
-            }
+            json={"item": "Different Product", "quantity": 5, "price": 99.99},
+            headers={**auth_headers, "Idempotency-Key": idem_key},
         )
         assert response2.status_code == status.HTTP_200_OK
         order2 = response2.json()
-        
+
         # Should return the same order
         assert order1["id"] == order2["id"]
         assert order1["item"] == order2["item"]
@@ -78,19 +56,12 @@ class TestOrders:
     def test_create_order_invalid_data(self, client, auth_headers):
         """Test order creation with invalid data"""
         idem_key = str(uuid.uuid4())
-        
+
         # Negative quantity
         response = client.post(
             "/orders/",
-            json={
-                "item": "Test Product",
-                "quantity": -1,
-                "price": 29.99
-            },
-            headers={
-                **auth_headers,
-                "Idempotency-Key": idem_key
-            }
+            json={"item": "Test Product", "quantity": -1, "price": 29.99},
+            headers={**auth_headers, "Idempotency-Key": idem_key},
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
@@ -101,17 +72,10 @@ class TestOrders:
             idem_key = str(uuid.uuid4())
             client.post(
                 "/orders/",
-                json={
-                    "item": f"Product {i}",
-                    "quantity": 1,
-                    "price": 10.0 * (i + 1)
-                },
-                headers={
-                    **auth_headers,
-                    "Idempotency-Key": idem_key
-                }
+                json={"item": f"Product {i}", "quantity": 1, "price": 10.0 * (i + 1)},
+                headers={**auth_headers, "Idempotency-Key": idem_key},
             )
-        
+
         # Get orders
         response = client.get("/orders/", headers=auth_headers)
         assert response.status_code == status.HTTP_200_OK
@@ -128,17 +92,10 @@ class TestOrders:
             idem_key = str(uuid.uuid4())
             client.post(
                 "/orders/",
-                json={
-                    "item": f"Product {i}",
-                    "quantity": 1,
-                    "price": 10.0
-                },
-                headers={
-                    **auth_headers,
-                    "Idempotency-Key": idem_key
-                }
+                json={"item": f"Product {i}", "quantity": 1, "price": 10.0},
+                headers={**auth_headers, "Idempotency-Key": idem_key},
             )
-        
+
         # Get first page with size 2
         response = client.get("/orders/?page=1&size=2", headers=auth_headers)
         assert response.status_code == status.HTTP_200_OK
@@ -154,22 +111,15 @@ class TestOrders:
         idem_key = str(uuid.uuid4())
         create_response = client.post(
             "/orders/",
-            json={
-                "item": "Test Product",
-                "quantity": 2,
-                "price": 29.99
-            },
-            headers={
-                **auth_headers,
-                "Idempotency-Key": idem_key
-            }
+            json={"item": "Test Product", "quantity": 2, "price": 29.99},
+            headers={**auth_headers, "Idempotency-Key": idem_key},
         )
         # Skip this test if order creation fails
         if create_response.status_code != status.HTTP_201_CREATED:
             pytest.skip("Order creation failed, skipping get order test")
-        
+
         order_id = create_response.json()["id"]
-        
+
         # Get the order
         response = client.get(f"/orders/{order_id}", headers=auth_headers)
         assert response.status_code == status.HTTP_200_OK
@@ -193,33 +143,24 @@ class TestOrders:
         idem_key = str(uuid.uuid4())
         create_response = client.post(
             "/orders/",
-            json={
-                "item": "Test Product",
-                "quantity": 1,
-                "price": 10.0
-            },
-            headers={
-                **auth_headers,
-                "Idempotency-Key": idem_key
-            }
+            json={"item": "Test Product", "quantity": 1, "price": 10.0},
+            headers={**auth_headers, "Idempotency-Key": idem_key},
         )
         # Skip this test if order creation fails
         if create_response.status_code != status.HTTP_201_CREATED:
             pytest.skip("Order creation failed, skipping other user order test")
-        
+
         order_id = create_response.json()["id"]
-        
+
         # Create second user and try to access first user's order
-        client.post("/auth/register", json={
-            "username": "user2",
-            "password": "pass123"
-        })
-        
-        auth2_response = client.post("/auth/login", json={
-            "username": "user2",
-            "password": "pass123"
-        })
-        auth2_headers = {"Authorization": f"Bearer {auth2_response.json()['access_token']}"}
-        
+        client.post("/auth/register", json={"username": "user2", "password": "pass123"})
+
+        auth2_response = client.post(
+            "/auth/login", json={"username": "user2", "password": "pass123"}
+        )
+        auth2_headers = {
+            "Authorization": f"Bearer {auth2_response.json()['access_token']}"
+        }
+
         response = client.get(f"/orders/{order_id}", headers=auth2_headers)
         assert response.status_code == status.HTTP_404_NOT_FOUND

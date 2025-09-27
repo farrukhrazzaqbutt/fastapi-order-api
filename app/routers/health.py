@@ -8,7 +8,4 @@ router = APIRouter(tags=["health"])
 @router.get("/health", response_model=HealthResponse)
 def health_check():
     """Health check endpoint"""
-    return HealthResponse(
-        status="healthy",
-        timestamp=datetime.utcnow()
-    )
+    return HealthResponse(status="healthy", timestamp=datetime.utcnow())

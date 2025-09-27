@@ -13,7 +13,9 @@ SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
 
 # Create test engine
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    )
 else:
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -29,23 +31,31 @@ except Exception:
     class MockRedis:
         def __init__(self):
             self.data = {}
+
         def get(self, key):
             return self.data.get(key)
+
         def set(self, key, value, ex=None):
             self.data[key] = value
+
         def setex(self, key, time, value):
             self.data[key] = value
+
         def incr(self, key, amount=1):
             current = int(self.data.get(key, 0))
             new_value = current + amount
             self.data[key] = str(new_value)
             return new_value
+
         def delete(self, key):
             self.data.pop(key, None)
+
         def flushdb(self):
             self.data.clear()
+
         def ping(self):
             return True
+
     test_redis = MockRedis()
 
 
@@ -72,9 +82,9 @@ def db_session(setup_database):
     connection = engine.connect()
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)
-    
+
     yield session
-    
+
     session.close()
     transaction.rollback()
     connection.close()
@@ -94,11 +104,8 @@ def test_user(db_session):
     """Create a test user"""
     from app.models import User
     from app.auth import get_password_hash
-    
-    user = User(
-        username="testuser",
-        hashed_password=get_password_hash("testpass")
-    )
+
+    user = User(username="testuser", hashed_password=get_password_hash("testpass"))
     db_session.add(user)
     db_session.commit()
     db_session.refresh(user)
@@ -108,10 +115,9 @@ def test_user(db_session):
 @pytest.fixture
 def auth_headers(client, test_user):
     """Get authentication headers for test user"""
-    response = client.post("/auth/login", json={
-        "username": "testuser",
-        "password": "testpass"
-    })
+    response = client.post(
+        "/auth/login", json={"username": "testuser", "password": "testpass"}
+    )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
@@ -121,11 +127,10 @@ def admin_headers(client):
     """Get admin authentication headers"""
     # Seed admin user
     client.post("/auth/seed")
-    
-    response = client.post("/auth/login", json={
-        "username": "admin",
-        "password": "admin"
-    })
+
+    response = client.post(
+        "/auth/login", json={"username": "admin", "password": "admin"}
+    )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 

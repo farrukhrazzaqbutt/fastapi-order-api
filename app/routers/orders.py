@@ -50,8 +50,8 @@ def create_order(
         )
         
         # Store result for idempotency
-        order_response = OrderResponse.from_orm(order)
-        store_idempotency(idem_key, order_response.dict())
+        order_response = OrderResponse.model_validate(order)
+        store_idempotency(idem_key, order_response.model_dump())
         
         # Add background task for email notification
         background_tasks.add_task(
@@ -95,7 +95,7 @@ def get_orders(
             size=size
         )
         
-        order_responses = [OrderResponse.from_orm(order) for order in orders]
+        order_responses = [OrderResponse.model_validate(order) for order in orders]
         
         log_response(correlation_id, 200, time.time() - start_time)
         return OrderListResponse(
@@ -136,7 +136,7 @@ def get_order(
             )
         
         log_response(correlation_id, 200, time.time() - start_time)
-        return OrderResponse.from_orm(order)
+        return OrderResponse.model_validate(order)
         
     except HTTPException:
         raise

@@ -60,7 +60,7 @@ def create_payment_intent(
         db.commit()
         
         log_response(correlation_id, 201, time.time() - start_time)
-        return PaymentIntentResponse.from_orm(payment_attempt)
+        return PaymentIntentResponse.model_validate(payment_attempt)
         
     except HTTPException:
         raise

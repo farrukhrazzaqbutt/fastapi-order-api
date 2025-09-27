@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import HTTPException, status
-from jose import JWTError, jwt
+import jwt
+from jwt import PyJWTError
 from passlib.context import CryptContext
 
 from app.config import settings
@@ -45,7 +46,7 @@ def verify_token(token: str) -> dict:
             token, settings.secret_key, algorithms=[settings.algorithm]
         )
         return payload
-    except JWTError:
+    except PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
